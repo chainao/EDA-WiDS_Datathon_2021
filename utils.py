@@ -54,7 +54,8 @@ def horizontal_bar_plot(df, x, title='', palette="Blues_r"):
     g.set_axis_labels("", "")
     g.set(xticklabels=[])
     
-def hist_plot(df, x, xlabel, fontsize='medium', title='', hue='', figsize=(10, 5), xlim=[]):
+def hist_plot(df, x, xlabel, fontsize='medium', title='', hue='', figsize=(10, 5), xlim=[], 
+              labels=['Dibético', 'Não Dibético']):
     
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -62,7 +63,7 @@ def hist_plot(df, x, xlabel, fontsize='medium', title='', hue='', figsize=(10, 5
         ax = sns.histplot(df[x], kde=True)
     else:
         ax = sns.histplot(data=df, x=x, hue=hue, multiple="dodge", kde=True)
-        ax.legend(title="", labels=['Dibético', 'Não Dibético'])
+        ax.legend(title="", labels=labels)
         
     if (len(xlim) != 0):
         ax.set_xlim(xlim[0], xlim[1])    
@@ -71,7 +72,8 @@ def hist_plot(df, x, xlabel, fontsize='medium', title='', hue='', figsize=(10, 5
     ax.set_ylabel("",fontsize=fontsize)
     ax.set_title(title,fontsize='medium', loc='left')
     
-def hist_plot_annotated(df, x, xlabel, ranges, classifications, colors, fontsize='medium', title='', hue='', hight=4500):
+def hist_plot_annotated(df, x, xlabel, ranges, classifications, colors, fontsize='medium', title='', hue='', hight=4500,
+                       labels=['Dibético', 'Não Dibético']):
     
     fig, ax = plt.subplots(figsize=(20, 8))
     
@@ -79,7 +81,7 @@ def hist_plot_annotated(df, x, xlabel, ranges, classifications, colors, fontsize
         ax = sns.histplot(df[x], kde=True, color='silver')
     else:
         ax = sns.histplot(data=df, x=x, hue=hue, multiple="dodge", kde=True, fill=False)
-        ax.legend(title="", labels=['Dibético', 'Não Dibético']) 
+        ax.legend(title="", labels=labels) 
         
     for i in range(0, len(classifications)):
         ax.annotate(classifications[i], xy=((ranges[i][0] + ranges[i][1])/2, hight),
@@ -99,11 +101,11 @@ def hist_plot_annotated(df, x, xlabel, ranges, classifications, colors, fontsize
     plt.xticks(fontsize=fontsize)
     plt.yticks(fontsize=fontsize)    
 
-def order_grouped_df(grouped_df, x):
+def order_grouped_df(grouped_df, x, labels):
     grouped_df = grouped_df.sort_values("percent", ascending=True)
     
-    df_diab = grouped_df.loc[(grouped_df['diabetes_mellitus'] == "Dibético")]
-    df_ndiab = grouped_df.loc[(grouped_df['diabetes_mellitus'] == "Não Dibético")]
+    df_diab = grouped_df.loc[(grouped_df['diabetes_mellitus'] == labels[0])]
+    df_ndiab = grouped_df.loc[(grouped_df['diabetes_mellitus'] == labels[1])]
         
     new_df = pd.DataFrame(columns = [x, 'diabetes_mellitus', 'percent']) 
     
@@ -121,12 +123,13 @@ def order_grouped_df(grouped_df, x):
             new_df.sort_index(inplace=True) 
     return new_df
 
-def grouped_bar_plot(df, x, y, hue_order, remove_legend=False, height=6, title='', fontsize=15):
+def grouped_bar_plot(df, x, y, hue_order, remove_legend=False, height=6, title='', fontsize=15, 
+                     labels=["Dibético", "Não Dibético"]):
     df_aux = df.groupby(x)[y].value_counts(normalize=True)
     df_aux = df_aux.mul(1)
     df_aux = df_aux.rename('percent').reset_index()
     
-    df_aux = order_grouped_df(df_aux, x)
+    df_aux = order_grouped_df(df_aux, x, labels)
 
     g = sns.catplot(x='percent',y=x,hue=y,kind='bar',data=df_aux, hue_order=hue_order,
                     ci="sd", palette="dark",alpha=.6, height=height)
@@ -144,7 +147,7 @@ def grouped_bar_plot(df, x, y, hue_order, remove_legend=False, height=6, title='
     g.ax.set_title(title,fontsize=fontsize, loc='left')
     g.ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), shadow=True, ncol=2)
     
-def line_plot(df, x, y, xlabel='', ylabel='', fontsize='large', title=''):
+def line_plot(df, x, y, xlabel='', ylabel='', fontsize='large', title='', labels=["Dibético", "Não Dibético"]):
     df_aux = df.groupby(y)[x].value_counts()
     df_aux = df_aux.mul(1)
     df_aux = df_aux.rename('nr_pacientes').reset_index()
@@ -153,9 +156,9 @@ def line_plot(df, x, y, xlabel='', ylabel='', fontsize='large', title=''):
                 markers=["", ""], linestyles=["-", "--"], alpha=0.6, ci="sd", height=5, aspect=2, kind="point", 
                     data=df_aux, palette={0: "b", 1: "darkorange"})
     
-    g.ax.annotate('Não diabéticos', xy=(0, 82000), xytext=(5, 82000), fontsize=13,
+    g.ax.annotate(labels[1], xy=(0, 82000), xytext=(5, 82000), fontsize=13,
                 arrowprops=dict(color='b', arrowstyle="->",connectionstyle='arc3,rad=-0.5'), color='b');
-    g.ax.annotate('Diabéticos', xy=(0, 20000), xytext=(5, 20000), fontsize=13,
+    g.ax.annotate(labels[0], xy=(0, 20000), xytext=(5, 20000), fontsize=13,
                     arrowprops=dict(color='darkorange', arrowstyle="->", connectionstyle='arc3,rad=-0.5'), color='darkorange');
 
     sns.despine()
@@ -165,40 +168,41 @@ def line_plot(df, x, y, xlabel='', ylabel='', fontsize='large', title=''):
     g.ax.set_ylabel(xlabel,fontsize=fontsize)
     g.ax.set_title(title,fontsize=fontsize, loc='left')
     
-def bmi_classification(df):
+def bmi_classification(df, classfication=['Magreza', 'Normal', 'Sobrepeso', 'Obesidade Tipo I', 'Obesidade Tipo II',
+                                         'Obesidade Tipo III']):
     df_aux = df.loc[(df['weight'].notnull()) & (df['height'].notnull())]
     classfications = []
     for index, row in df_aux.iterrows():
 
         if row['bmi'] < 18.5:
-            classfications.append('Magreza')
+            classfications.append(classfication[0])
         elif (row['bmi'] >= 18.5 and row['bmi'] < 25):
-            classfications.append('Normal')
+            classfications.append(classfication[1])
         elif (row['bmi'] >= 25 and row['bmi'] < 30):
-            classfications.append('Sobrepeso')
+            classfications.append(classfication[2])
         elif (row['bmi'] >= 30 and row['bmi'] < 35):
-            classfications.append('Obesidade Tipo I')
+            classfications.append(classfication[3])
         elif (row['bmi'] >= 35 and row['bmi'] < 40):
-            classfications.append('Obesidade Tipo II')
+            classfications.append(classfication[4])
         else:
-            classfications.append('Obesidade Tipo III')
+            classfications.append(classfication[5])
 
     df_aux['imc_classification'] = classfications
     return df_aux
 
-def glucose_classification(df):
+def glucose_classification(df, classfication=['Abaixo', 'Normal', 'Pré-Diabetes', 'Diabetes']):
     df_aux = df.loc[df['glucose_apache'].notnull()]
     classfications = []
     for index, row in df_aux.iterrows():
 
         if row['glucose_apache'] < 70:
-            classfications.append('Abaixo')
+            classfications.append(classfication[0])
         elif (row['glucose_apache'] >= 70 and row['glucose_apache'] < 100):
-            classfications.append('Normal')
+            classfications.append(classfication[1])
         elif (row['glucose_apache'] >= 100 and row['glucose_apache'] < 126):
-            classfications.append('Pré-Diabetes')
+            classfications.append(classfication[2])
         elif (row['glucose_apache'] >= 126):
-            classfications.append('Diabetes')
+            classfications.append(classfication[3])
 
     df_aux['glucose_classification'] = classfications
     return df_aux
