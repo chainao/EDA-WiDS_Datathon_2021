@@ -1,3 +1,5 @@
 # WiDS Datathon 2021 - EDA
 
-Análise exploratória dos dados do Datathon do WiDS 2021. Para a visualização, foram aplicadas algumas lições aprendidas no livro "**<a href="https://www.storytellingwithdata.com/books">Storytelling com dados</a>**" da Cole Knaflic (*caso ainda não tenha lido, eu super recomendo!!!*). Vamos nessa?!?
+**Exploratory data analysis** of WIDS Datathon 2021. In the visualization, I applied some lessons I learned by reading the book  "**<a href="https://www.storytellingwithdata.com/books">Storytelling with Data</a>**" written by Cole Knaflic  (*if you hadn't read it. I recommend it!!*). Before initializing our analysis, I will briefly present the WiDS and the WiDS Datathon 2021. Let's go!?!
+
+PS: there are two versions, in English and Portuguese.
